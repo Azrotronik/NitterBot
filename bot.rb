@@ -12,7 +12,7 @@ ssl.connect
     ssl.puts('USER NitterBot NitterBot NitterBot NitterBot')
     ssl.puts('NICK NitterBot') 
     #ssl.puts('MSG nickserv identify password')
-	chanlist=["#ex1","#/g/punk"]
+	chanlist=["#ex1","#ex2"]
 
 while(1==1)
     line=ssl.gets
