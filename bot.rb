@@ -58,7 +58,7 @@ while(1==1)
 		sleep(2)
 
     elsif line.include? ":.bots"
-    		        channel=line[line.index(' #')+1..line.index(' :')-1]é
+    		        channel=line[line.index(' #')+1..line.index(' :')-1]
           ssl.puts "PRIVMSG #{channel} :Reporting in! [Ruby] https://github.com/Azrotronik/NitterBot, commands are t@,t#,p@,p#"
 
 	elsif line.include? "VERSION"
