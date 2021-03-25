@@ -1,6 +1,16 @@
 require 'openssl'
 require 'socket'
-conn=TCPSocket.new('irc.rizon.net',6697)
+
+#######################
+#######################
+botname="NitterBot"
+server="irc.rizon.net"
+port=6697
+chanlist=["#ex1","#ex2"]
+#######################
+#######################
+
+conn=TCPSocket.new(server,port)
 def sanitizeinput(string)
 	special = "?<>',?[]}{=-)(*&^%$`~{}"
 	string.match(/[#{special.gsub(/./){|char| "\\#{char}"}}]/).nil?
@@ -9,10 +19,9 @@ ssl = OpenSSL::SSL::SSLSocket.new(conn)
 ssl.sync_close = true
 ssl.connect
  
-    ssl.puts('USER NitterBot NitterBot NitterBot NitterBot')
-    ssl.puts('NICK NitterBot') 
+    ssl.puts("USER #{botname} #{botname} #{botname} #{botname}")
+    ssl.puts("NICK #{botname}") 
     #ssl.puts('MSG nickserv identify password')
-	chanlist=["#ex1","#ex2"]
 
 while(1==1)
     line=ssl.gets
