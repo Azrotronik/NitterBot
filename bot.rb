@@ -17,7 +17,9 @@ ssl.connect
 while(1==1)
     line=ssl.gets
     puts line
-    if line.include? ":p@"
+    if line.include?"PRIVMSG NitterBot"
+	#do nothing, ignore PMs 
+    elsif line.include? ":p@"
         channel=line[line.index(' #')+1..line.index(' :')-1]
         searchterm=line[line.index(':p@')+3..line.length].chomp
         if sanitizeinput(searchterm)
