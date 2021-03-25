@@ -49,7 +49,7 @@ while(1==1)
 		        	ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
 		        	next			
 		        end
-				message= `curl -Ns "https://nitter.cc/#{searchterm}/media" | grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
+				message= `curl -Ns "https://nitter.cc/#{searchterm}" | grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
 				puts 	 message
 		        ssl.puts "PRIVMSG #{channel} :@#{searchterm}: #{message}"      
 			end	
