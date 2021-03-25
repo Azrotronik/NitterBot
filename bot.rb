@@ -2,7 +2,7 @@ require 'openssl'
 require 'socket'
 conn=TCPSocket.new('irc.rizon.net',6697)
 def sanitizeinput(string)
-	special = "?<>',?[]}{=-)(*&^%$#`~{}"
+	special = "?<>',?[]}{=-)(*&^%$`~{}"
 	string.match(/[#{special.gsub(/./){|char| "\\#{char}"}}]/).nil?
 end
 ssl = OpenSSL::SSL::SSLSocket.new(conn)
@@ -19,17 +19,25 @@ while(1==1)
     puts line
     if line.include? ":p@"
         channel=line[line.index(' #')+1..line.index(' :')-1]
-        userid=line[line.index(':p@')+3..line.length].chomp
-        if sanitizeinput(userid)
-				message= `curl -Ns https://nitter.cc/#{userid}/media | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E s/src=\\"// | shuf -n1`
-		        ssl.puts "PRIVMSG #{channel} https://nitter.cc#{message}"
+        searchterm=line[line.index(':p@')+3..line.length].chomp
+        if sanitizeinput(searchterm)
+        	if `curl -Ns https://nitter.cc/#{searchterm}/media`=~ /not found|No items found|suspended/ or not(`curl -Ns "https://nitter.cc/#{searchterm}/media" | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E "s/src=\\"//" | shuf -n1`=~/jpg|png/)
+			    ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
+			    next			
+        	end
+				message= `curl -Ns https://nitter.cc/#{searchterm}/media | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E s/src=\\"// | shuf -n1`
+		    	ssl.puts "PRIVMSG #{channel} https://nitter.cc#{message}"
 		end
 
    elsif line.include? ":p#"
         channel=line[line.index(' #')+1..line.index(' :')-1]
         searchterm=line[line.index(':p#')+3..line.length].chomp
         if sanitizeinput(searchterm)
-				message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=%23#{searchterm}" | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E "s/src=\\"//" | shuf -n1`
+	        if `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}" | grep -Eo 'No items found'`.include?"No items found" or not(`curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}" | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E "s/src=\\"//" | shuf -n1`=~/jpg|png/)
+   			    ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
+			    next
+	        end
+				message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}" | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E "s/src=\\"//" | shuf -n1`
 				puts 	 message
 		        ssl.puts "PRIVMSG #{channel} https://nitter.cc#{message}"
 		end		
@@ -38,7 +46,11 @@ while(1==1)
 	        channel=line[line.index(' #')+1..line.index(' :')-1]
 	        searchterm=line[line.index(':t#')+3..line.length].chomp
 	        if sanitizeinput(searchterm)
-						message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=%23#{searchterm}"| grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
+	        if `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}" | grep -Eo "No items found"`.include?"No items found"
+	           		 ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
+	   			    next
+   	        end
+						message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}"| grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
 					puts 	 message
 			        ssl.puts "PRIVMSG #{channel} :@#{searchterm}: #{message}"
 			end	
@@ -47,15 +59,19 @@ while(1==1)
 		        channel=line[line.index(' #')+1..line.index(' :')-1]
 		        searchterm=line[line.index(':t@')+3..line.length].chomp
 		        if sanitizeinput(searchterm)
-						message= `curl -Ns "https://nitter.cc/#{searchterm}" | grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
+    	        	if `curl -Ns https://nitter.cc/#{searchterm}/media`.=~ /not found|No items found|suspended/
+			        	ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
+			        	next			
+			        end
+						message= `curl -Ns "https://nitter.cc/#{searchterm}/media" | grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
 						puts 	 message
-				        ssl.puts "PRIVMSG #{channel} :@#{searchterm}: #{message}"
+				        ssl.puts "PRIVMSG #{channel} :@#{searchterm}: #{message}"      
 			end	
 
     elsif line.include? "PING"
         ssl.puts "PONG #{line[line.index(':')+1..line.length]}"
         puts "PONG #{line[line.index(':')+1..line.length]}"
-		sleep(2)
+		sleep(1)
 
     elsif line.include? ":.bots"
     		        channel=line[line.index(' #')+1..line.index(' :')-1]
