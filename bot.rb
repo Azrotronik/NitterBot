@@ -25,7 +25,7 @@ while(1==1)
 			    ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
 			    next			
         	end
-				message= `curl -Ns https://nitter.cc/#{searchterm}/media | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E s/src=\\"// | shuf -n1`
+				message= `curl -Ns https://nitter.cc/#{searchterm}/media | grep -Eo "src=\\"/pic/media.+(jpg|png|mp4)" | sed -E s/src=\\"// | shuf -n1`
 		    	ssl.puts "PRIVMSG #{channel} https://nitter.cc#{message}"
 		end
 
@@ -37,7 +37,7 @@ while(1==1)
    			    ssl.puts "PRIVMSG #{channel} :Sorry, got nothing!"
 			    next
 	        end
-				message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}" | grep -Eo "src=\\"/pic/media.+(jpg|png)" | sed -E "s/src=\\"//" | shuf -n1`
+				message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}" | grep -Eo "src=\\"/pic/media.+(jpg|png|mp4)" | sed -E "s/src=\\"//" | shuf -n1`
 				puts 	 message
 		        ssl.puts "PRIVMSG #{channel} https://nitter.cc#{message}"
 		end		
