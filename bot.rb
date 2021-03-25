@@ -52,7 +52,7 @@ while(1==1)
    	        end
 						message= `curl -Ns "https://nitter.cc/search?f=tweets\&q=#{searchterm}"| grep -E 'tweet-content media-body.+\/div>' |sed -E 's\/.*auto">|<\\/div>|<div>|<\\/a>\/\/g' |sed -E 's\/<a href=".*>\/\/g'|shuf -n1`
 					puts 	 message
-			        ssl.puts "PRIVMSG #{channel} :@#{searchterm}: #{message}"
+			        ssl.puts "PRIVMSG #{channel} :#{message}"
 			end	
 
 	elsif line.include? ":t@"
